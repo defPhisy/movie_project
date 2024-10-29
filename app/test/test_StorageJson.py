@@ -1,11 +1,14 @@
-import storage_json
+from movie_app import MovieApp
+from storage_json import StorageJson
 
 
-storage = storage_json.StorageJson("app/data/movie_db.json")
-print(storage.list_movies())
-storage.add_movie("Hurz", "1992", 3.7, "poster1")
-storage.add_movie("Furz", "2992", 4.7, "poster2")
-print(storage.list_movies())
-storage.delete_movie("Furz")
-storage.update_movie("Hurz", 10)
-print(storage.list_movies())
+
+storage = StorageJson('app/data/movie_db.json')
+movie_app = MovieApp(storage)
+movie_app.run()
+# app.print_bye()
+# app.print_movie_list()
+# app.prompt_user_to_add_movie()
+# app.prompt_user_to_delete_movie()
+# app.prompt_user_to_update_movie()
+# app.print_movie_stats()
