@@ -7,8 +7,8 @@ from typing import Callable
 from colorama import Fore, Style
 from thefuzz import process
 
-import movie_storage
-from movie_storage import RATING, TITLE, YEAR
+import backup.movie_storage as movie_storage
+from backup.movie_storage import RATING, TITLE, YEAR
 
 
 def main():
