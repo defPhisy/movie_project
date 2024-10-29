@@ -32,8 +32,8 @@ class StorageJson(IStorage):
         movie_dict = {}
         for movie in movies:
             movie_dict[movie[TITLE]] = {
-                "rating": movie["Rating"],
-                "year": movie["Year"],
+                "rating": movie[RATING],
+                "year": movie[YEAR],
             }
         return movie_dict
 
