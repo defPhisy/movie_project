@@ -13,21 +13,6 @@ class StorageJson(IStorage):
         return data
 
     def _list_movies(self) -> dict[str, dict]:
-        """
-        Returns a dictionary of dictionaries that
-        contains the movies information in the database.
-        The function loads the information from the JSON
-        file and returns the data.
-        For example, the function may return:
-        {
-            "Titanic":
-                {"rating": 9, "year": 1999},
-            "Pulp Fiction":
-                {"rating": 10, "year": 1999},
-            ...
-        }
-        """
-
         movies = self.get_movie_data()
         movie_dict = {}
         for movie in movies:
@@ -37,12 +22,7 @@ class StorageJson(IStorage):
             }
         return movie_dict
 
-    def _add_movie(self, title, year, rating, poster="placeholder"):
-        """
-        Adds a movie to the movies database.
-        Loads the information from the JSON file, add the movie,
-        and saves it. The function doesn't need to validate the input.
-        """
+    def _add_movie(self, title, year, rating, poster="placeholder") -> None:
         movies = self.get_movie_data()
         movies.append({
             "Title": title,
@@ -54,11 +34,6 @@ class StorageJson(IStorage):
         self._save_movies(movies)
 
     def _delete_movie(self, title):
-        """
-        Deletes a movie from the movies database.
-        Loads the information from the JSON file, deletes the movie,
-        and saves it. The function doesn't need to validate the input.
-        """
         movies = self.get_movie_data()
         for index, movie in enumerate(movies):
             if movie[TITLE].lower() == title.lower():
@@ -66,12 +41,7 @@ class StorageJson(IStorage):
 
         self._save_movies(movies)
 
-    def _update_movie(self, title, rating):
-        """
-        Updates a movie from the movies database.
-        Loads the information from the JSON file, updates the movie,
-        and saves it. The function doesn't need to validate the input.
-        """
+    def _update_movie(self, title, rating) -> None:
         movies = self.get_movie_data()
         for index, movie in enumerate(movies):
             if movie[TITLE].lower() == title.lower():
