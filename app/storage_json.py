@@ -12,7 +12,7 @@ class StorageJson(IStorage):
             data = json.loads(file.read())
         return data
 
-    def list_movies(self) -> dict[str, dict]:
+    def _list_movies(self) -> dict[str, dict]:
         """
         Returns a dictionary of dictionaries that
         contains the movies information in the database.
@@ -37,7 +37,7 @@ class StorageJson(IStorage):
             }
         return movie_dict
 
-    def add_movie(self, title, year, rating, poster="placeholder"):
+    def _add_movie(self, title, year, rating, poster="placeholder"):
         """
         Adds a movie to the movies database.
         Loads the information from the JSON file, add the movie,
@@ -51,9 +51,9 @@ class StorageJson(IStorage):
             "poster": poster,
         })
 
-        self.save_movies(movies)
+        self._save_movies(movies)
 
-    def delete_movie(self, title):
+    def _delete_movie(self, title):
         """
         Deletes a movie from the movies database.
         Loads the information from the JSON file, deletes the movie,
@@ -64,9 +64,9 @@ class StorageJson(IStorage):
             if movie[TITLE].lower() == title.lower():
                 movies.remove(movies[index])
 
-        self.save_movies(movies)
+        self._save_movies(movies)
 
-    def update_movie(self, title, rating):
+    def _update_movie(self, title, rating):
         """
         Updates a movie from the movies database.
         Loads the information from the JSON file, updates the movie,
@@ -77,9 +77,9 @@ class StorageJson(IStorage):
             if movie[TITLE].lower() == title.lower():
                 movies[index]["Rating"] = rating
 
-        self.save_movies(movies)
+        self._save_movies(movies)
 
-    def save_movies(self, movies) -> None:
+    def _save_movies(self, movies) -> None:
         """Save movies in json file.
 
         Arguments:

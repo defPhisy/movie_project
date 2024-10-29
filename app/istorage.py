@@ -9,17 +9,17 @@ RATING = "Rating"
 
 class IStorage(ABC):
     @abstractmethod
-    def list_movies(self):
+    def _list_movies(self):
         pass
 
     @abstractmethod
-    def add_movie(self, title, year, rating, poster):
+    def _add_movie(self, title, year, rating, poster):
         pass
 
     @abstractmethod
-    def delete_movie(self, title):
+    def _delete_movie(self, title):
         pass
 
     @abstractmethod
-    def update_movie(self, title, rating):
+    def _update_movie(self, title, rating):
         pass
