@@ -37,7 +37,7 @@ class StorageJson(IStorage):
             }
         return movie_dict
 
-    def add_movie(self, title, year, rating, poster):
+    def add_movie(self, title, year, rating, poster="placeholder"):
         """
         Adds a movie to the movies database.
         Loads the information from the JSON file, add the movie,
