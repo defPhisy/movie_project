@@ -6,6 +6,7 @@ import os
 from colorama import Fore, Style
 from istorage import RATING, TITLE, YEAR
 from thefuzz import process
+from movie_api import request_for_movie
 
 
 class MovieApp:
@@ -41,10 +42,14 @@ class MovieApp:
         movie_title = self._get_valid_movie_title_from_user(
             case_sensitive=False, reverse=False
         )
+        
         if movie_title:
-            year = self._get_valid_movie_year_from_user()
-            rating = self._get_valid_movie_rating_from_user()
-            self.storage._add_movie(movie_title, year, rating)
+            movie = request_for_movie(movie_title)
+            title = movie["Title"]
+            year = movie["Year"]
+            rating = movie["imdbRating"]
+            poster_url = movie["Poster"] 
+            self.storage._add_movie(title, year, rating, poster_url)
             self._print_color(
                 f"Movie '{movie_title}' successfully added!", "green"
             )
