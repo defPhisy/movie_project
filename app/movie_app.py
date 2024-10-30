@@ -23,11 +23,11 @@ class MovieApp:
     # 1 List movies
     def _print_movie_list(self) -> None:
         """Print all movies in database."""
-
+        self.movies = self.storage.get_movie_data()
         print("")
         print(len(self.movies), "movies in total")
         for movie in self.movies:
-            print(f"{movie[TITLE]} ({movie[YEAR]}): {movie[RATING]}")
+            print(f"{movie[TITLE]} ({movie[YEAR]}): {movie[RATING]} {movie["Poster"]}")
 
         self._enter_to_continue()
 
