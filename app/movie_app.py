@@ -2,6 +2,7 @@ import datetime
 import random
 import statistics
 import os
+import re
 
 from colorama import Fore, Style
 from istorage import RATING, TITLE, YEAR
@@ -47,7 +48,7 @@ class MovieApp:
 
         if movie_title:
             movie = request_for_movie(movie_title)
-            if ["Response"] == "True": #does not return bool
+            if movie["Response"] == "True":  # does not return bool
                 title = movie["Title"]
                 year = movie["Year"]
                 rating = movie["imdbRating"]
@@ -450,6 +451,58 @@ class MovieApp:
 
         return list(sorted_movies)
 
+    # 11 Generate Website
+    def _generate_website(self):
+        template_file = "app/static/templates/index_template.html"
+        website = "app/static/index.html"
+        website_title = input("Type a website heading: ")
+        with open(template_file, "r") as file:
+            data = file.read()
+
+        movie_html = self._generate_movie_html()
+        template_html = data
+
+        translation_table = {
+            "__TEMPLATE_TITLE__": website_title,
+            "__TEMPLATE_MOVIE_GRID__": movie_html,
+        }
+        website_html = re.sub(
+            "|".join([word for word in translation_table]),
+            lambda x: translation_table[x.group()],
+            template_html,
+        )
+
+        # save new generated index.html
+        with open(website, "w") as file:
+            file.write(website_html)
+        print("Website was generated successfully.")
+        self._enter_to_continue()
+
+    def _generate_movie_html(self):
+        movies = self.storage.get_movie_data()
+        html_template = self.get_movie_html_template()
+        final_html = ""
+
+        for movie in movies:
+            translation_table = {
+                "__POSTER__": movie["Poster"],
+                "__TITLE__": movie["Title"],
+                "__YEAR__": str(movie["Year"]),
+            }
+
+            movie_html = re.sub(
+                "|".join([word for word in translation_table]),
+                lambda x: translation_table[x.group()],
+                html_template,
+            )
+            final_html += movie_html
+        return final_html
+
+    def get_movie_html_template(self):
+        movie_html_template = "app/static/templates/movie_template.html"
+        with open(movie_html_template, "r") as file:
+            return file.read()
+
     def _print_color(self, text, color) -> None:
         """Print colored text in terminal: red, green and blue!"""
         color_translator = {
@@ -512,6 +565,11 @@ class MovieApp:
                 "command": "Filter movies",
                 "func": self._prompt_user_to_filter_movies,
             },
+            {
+                "i": 11,
+                "command": "Generate website",
+                "func": self._generate_website,
+            },
         ]
 
         app_running = True
@@ -550,13 +608,13 @@ class MovieApp:
         while True:
             try:
                 while True:
-                    choice = int(input("Enter choice (0-10): "))
-                    if choice > 10 or choice < 0:
+                    choice = int(input("Enter choice (0-11): "))
+                    if choice > 11 or choice < 0:
                         self._print_color("Number out of range!", "red")
                     else:
                         break
             except ValueError:
-                self._print_color("Only numbers 0-10 are allowed!", "red")
+                self._print_color("Only numbers 0-11 are allowed!", "red")
             else:
                 return choice
 
@@ -564,7 +622,7 @@ class MovieApp:
         """Execute chosen menu function
 
         Args:
-            menu_num (int): menu number (0-10)
+            menu_num (int): menu number (0-11)
             menu_items (list[dict]): dictionary with features and functions
 
         Returns:
