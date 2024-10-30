@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-import json
+
 
 # Movie dictionary keys
 TITLE = "Title"
