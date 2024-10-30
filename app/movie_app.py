@@ -47,7 +47,7 @@ class MovieApp:
 
         if movie_title:
             movie = request_for_movie(movie_title)
-            if movie["Response"]:
+            if ["Response"] == "True": #does not return bool
                 title = movie["Title"]
                 year = movie["Year"]
                 rating = movie["imdbRating"]
@@ -60,6 +60,7 @@ class MovieApp:
             else:
                 error_msg = movie["Error"]
                 self._print_color(error_msg, "red")
+                self._enter_to_continue()
 
     # 3 Delete movie
     def _prompt_user_to_delete_movie(self) -> None:
