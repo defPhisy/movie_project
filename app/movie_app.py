@@ -28,7 +28,9 @@ class MovieApp:
         print("")
         print(len(self.movies), "movies in total")
         for movie in self.movies:
-            print(f"{movie[TITLE]} ({movie[YEAR]}): {movie[RATING]} {movie["Poster"]}")
+            print(
+                f"{movie[TITLE]} ({movie[YEAR]}): {movie[RATING]} {movie['Poster']}"
+            )
 
         self._enter_to_continue()
 
@@ -42,18 +44,22 @@ class MovieApp:
         movie_title = self._get_valid_movie_title_from_user(
             case_sensitive=False, reverse=False
         )
-        
+
         if movie_title:
             movie = request_for_movie(movie_title)
-            title = movie["Title"]
-            year = movie["Year"]
-            rating = movie["imdbRating"]
-            poster_url = movie["Poster"] 
-            self.storage._add_movie(title, year, rating, poster_url)
-            self._print_color(
-                f"Movie '{movie_title}' successfully added!", "green"
-            )
-            self._enter_to_continue()
+            if movie["Response"]:
+                title = movie["Title"]
+                year = movie["Year"]
+                rating = movie["imdbRating"]
+                poster_url = movie["Poster"]
+                self.storage._add_movie(title, year, rating, poster_url)
+                self._print_color(
+                    f"Movie '{title}' successfully added!", "green"
+                )
+                self._enter_to_continue()
+            else:
+                error_msg = movie["Error"]
+                self._print_color(error_msg, "red")
 
     # 3 Delete movie
     def _prompt_user_to_delete_movie(self) -> None:

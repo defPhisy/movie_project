@@ -54,4 +54,3 @@ def request_for_movie(title: str):
         )
         response.raise_for_status()  # Raise an error for bad HTTP responses
         return response.json()
-
