@@ -8,10 +8,22 @@ class StorageCsv(IStorage):
         self.file_path = file_path
 
     def get_movie_data(self) -> list[dict]:
-        with open(self.file_path, 'r') as file:
+        with open(self.file_path, "r") as file:
             dict_reader = csv.DictReader(file)
-            data = dict_reader
-        return list(data)
+            data = list(dict_reader)
+            movies = []
+            for row in data:
+                title = row["Title"]
+                rating = float(row["Rating"])
+                year = int(row["Year"])
+                poster = row["Poster"]
+                movies.append({
+                    "Title": title,
+                    "Rating": rating,
+                    "Year": year,
+                    "Poster": poster,
+                })
+        return movies
 
     def _list_movies(self) -> dict[str, dict]:
         movies = self.get_movie_data()
@@ -20,7 +32,9 @@ class StorageCsv(IStorage):
             movie_dict[movie[TITLE]] = {
                 "rating": movie[RATING],
                 "year": movie[YEAR],
+                "poster": movie["Poster"],
             }
+        print(movie_dict)
         return movie_dict
 
     def _add_movie(self, title, year, rating, poster="placeholder") -> None:
@@ -29,7 +43,7 @@ class StorageCsv(IStorage):
             "Title": title,
             "Rating": rating,
             "Year": year,
-            "poster": poster,
+            "Poster": poster,
         })
 
         self._save_movies(movies)
@@ -57,10 +71,9 @@ class StorageCsv(IStorage):
             movies -- dictionary of all movies
         """
 
-        field_names = movies[0].keys() 
-        movies = self.get_movie_data()
-        
-        with open(self.file_path, 'w') as file: 
-            writer = csv.DictWriter(file, fieldnames = field_names) 
-            writer.writeheader() 
-            writer.writerows(movies) 
+        field_names = movies[0].keys()
+
+        with open(self.file_path, "w") as file:
+            writer = csv.DictWriter(file, fieldnames=field_names)
+            writer.writeheader()
+            writer.writerows(movies)
