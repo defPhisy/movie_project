@@ -2,7 +2,42 @@
 
 A simple movie management application that allows users to manage their movie collection.
 
+```
+Menu:
+
+0. Exit
+1. List movies
+2. Add movie
+3. Delete movie
+4. Stats
+5. Random movie
+6. Search movie
+7. Movies sorted by rating
+8. Movies sorted by year
+9. Filter movies
+10. Generate website
+
+Enter choice (0-10): 1
+
+9 movies in total
+Pulp Fiction (1994): 8.9
+The Dark Knight (2008): 9.0
+Interstellar (2014): 8.7
+Inception (2010): 8.8
+Dune: Part One (2021): 8.0
+Dune: Part Two (2024): 8.5
+Man on Fire (2004): 7.7
+The Lord of the Rings: The Fellowship of the Ring (2001): 8.9
+The Lord of the Rings: The Return of the King (2003): 9.0
+
+Press enter to continue
+```
+
+<p style="margin: -1.8rem 0 2rem 2rem; font-size: 0.85rem">CLI-Interface</p>
+
 ![screenshot](./images/my_movie_app.jpeg)
+
+<p style="text-align:center;margin-top: -1.5rem; font-size: 0.85rem">Generated Website</p>
 
 ## Features
 
