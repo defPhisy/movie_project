@@ -11,8 +11,8 @@ import random
 import re
 import statistics
 
-import helper_functions as helper
-from istorage import RATING, TITLE, YEAR
+import utility as helper
+from storage.istorage import RATING, TITLE, YEAR
 from menu import Menu
 from movie_api import request_for_movie
 from thefuzz import process
@@ -53,9 +53,7 @@ class MovieApp:
         print("")
         print(len(self.movies), "movies in total")
         for movie in self.movies:
-            print(
-                f"{movie[TITLE]} ({movie[YEAR]}): {movie[RATING]} {movie['Poster']}"
-            )
+            print(f"{movie[TITLE]} ({movie[YEAR]}): {movie[RATING]}")
 
         helper.enter_to_continue()
 

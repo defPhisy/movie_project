@@ -1,9 +1,19 @@
+"""
+IStorage interface defines methods for movie storage operations.
+
+Methods:
+- _list_movies() -> dict[str, dict]: Returns a dictionary of movies with ratings and years.
+- _add_movie(title: str, year: int, rating: float, poster: str) -> None: Adds a movie to the database.
+- _delete_movie(title: str) -> None: Deletes a movie from the database.
+"""
+
 from abc import ABC, abstractmethod
 
 # Movie dictionary keys
 TITLE = "Title"
 YEAR = "Year"
 RATING = "Rating"
+POSTER = "Poster"
 
 
 class IStorage(ABC):

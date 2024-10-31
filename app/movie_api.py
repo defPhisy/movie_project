@@ -1,3 +1,13 @@
+"""
+Module for fetching movie data from the OMDB API.
+
+This module loads the API key from environment variables and provides a function
+to request movie information with retry logic for handling HTTP errors.
+
+Usage:
+    Call `request_for_movie(title: str)` with a movie title.
+"""
+
 import os
 
 import requests
@@ -9,7 +19,7 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 
-def request_for_movie(title: str):
+def request_for_movie(title: str) -> dict:
     """
     Send a GET request with a movie title to www.omdbapi.com with authorization
     and retry logic.

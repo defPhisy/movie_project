@@ -1,6 +1,17 @@
+"""
+StorageCsv manages movie data in a CSV file, implementing the IStorage interface.
+
+Methods:
+- get_movie_data() -> list[dict]: Loads movie records.
+- _list_movies() -> dict[str, dict]: Retrieves movies with ratings and years.
+- _add_movie(title: str, year: int, rating: float, poster: str = "placeholder") -> None: Adds a movie.
+- _delete_movie(title: str) -> None: Deletes a movie by title.
+- _save_movies(movies: list[dict]) -> None: Saves movies to the JSON file.
+"""
+
 import csv
 
-from istorage import RATING, TITLE, YEAR, IStorage
+from storage.istorage import RATING, TITLE, YEAR, POSTER, IStorage
 
 
 class StorageCsv(IStorage):
@@ -21,13 +32,15 @@ class StorageCsv(IStorage):
 
     def _list_movies(self) -> dict[str, dict]:
         movies = self.get_movie_data()
+        print(movies)
         return {
-            movie[TITLE]: {"rating": movie[RATING], "year": movie[YEAR]}
+            movie[TITLE]: {
+                "rating": movie[RATING],
+                "year": movie[YEAR],
+                "poster": movie[POSTER],
+            }
             for movie in movies
         }
-
-        print(movie_dict)
-        return movie_dict
 
     def _add_movie(self, title, year, rating, poster="placeholder") -> None:
         movies = self.get_movie_data()

@@ -5,7 +5,7 @@ The `Menu` class displays options, captures user choices, and triggers
 corresponding functions from a provided function table.
 """
 
-import helper_functions as helper
+import utility as helper
 
 MENU_ITEMS = [
     "Exit",

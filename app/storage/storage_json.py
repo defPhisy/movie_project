@@ -1,6 +1,17 @@
+"""
+StorageJson manages movie data in a JSON file, implementing the IStorage interface.
+
+Methods:
+- get_movie_data() -> list[dict]: Loads movie records.
+- _list_movies() -> dict[str, dict]: Retrieves movies with ratings and years.
+- _add_movie(title: str, year: int, rating: float, poster: str = "placeholder") -> None: Adds a movie.
+- _delete_movie(title: str) -> None: Deletes a movie by title.
+- _save_movies(movies: list[dict]) -> None: Saves movies to the JSON file.
+"""
+
 import json
 
-from istorage import RATING, TITLE, YEAR, IStorage
+from app.storage.istorage import RATING, TITLE, YEAR, POSTER, IStorage
 
 
 class StorageJson(IStorage):
@@ -19,6 +30,7 @@ class StorageJson(IStorage):
             movie_dict[movie[TITLE]] = {
                 "rating": movie[RATING],
                 "year": movie[YEAR],
+                "poster": movie[POSTER],
             }
         return movie_dict
 
