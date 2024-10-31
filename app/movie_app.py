@@ -1,26 +1,50 @@
-import datetime
-import random
-import statistics
-import os
-import re
+"""
+A movie management application.
 
-from colorama import Fore, Style
+Features include adding, deleting, searching, and filtering movies,
+viewing statistics, random movie suggestions, and generating an HTML website.
+"""
+
+import datetime
+import os
+import random
+import re
+import statistics
+
+import helper_functions as helper
 from istorage import RATING, TITLE, YEAR
-from thefuzz import process
+from menu import Menu
 from movie_api import request_for_movie
+from thefuzz import process
 
 
 class MovieApp:
+    TITLE = "********** My Movies Database **********"
+
     def __init__(self, storage) -> None:
         self.storage = storage
         self.movies = self.storage.get_movie_data()
+        self.menu_actions = Menu({
+            "Exit": self._print_bye,
+            "List movies": self._print_movie_list,
+            "Add movie": self._prompt_user_to_add_movie,
+            "Delete movie": self._prompt_user_to_delete_movie,
+            "Stats": self._print_movie_stats,
+            "Random movie": self._print_random_movie,
+            "Search movie": self._prompt_user_for_movie_search,
+            "Movies sorted by rating": self._print_sorted_movies_by_rating,
+            "Movies sorted by year": self._print_sorted_movies_by_year,
+            "Filter movies": self._prompt_user_to_filter_movies,
+            "Generate website": self._generate_website,
+        })
 
     # 0 Exit
     def _print_bye(self) -> None:
         """Print 'Good Bye' before program exits"""
         print("")
-        self._print_color("Good Bye", "blue")
+        helper.print_color("Good Bye", "blue")
         print("")
+        quit()
 
     # 1 List movies
     def _print_movie_list(self) -> None:
@@ -33,7 +57,7 @@ class MovieApp:
                 f"{movie[TITLE]} ({movie[YEAR]}): {movie[RATING]} {movie['Poster']}"
             )
 
-        self._enter_to_continue()
+        helper.enter_to_continue()
 
     # 2 Add movie
     def _prompt_user_to_add_movie(self) -> None:
@@ -54,14 +78,14 @@ class MovieApp:
                 rating = movie["imdbRating"]
                 poster_url = movie["Poster"]
                 self.storage._add_movie(title, year, rating, poster_url)
-                self._print_color(
+                helper.print_color(
                     f"Movie '{title}' successfully added!", "green"
                 )
-                self._enter_to_continue()
+                helper.enter_to_continue()
             else:
                 error_msg = movie["Error"]
-                self._print_color(error_msg, "red")
-                self._enter_to_continue()
+                helper.print_color(error_msg, "red")
+                helper.enter_to_continue()
 
     # 3 Delete movie
     def _prompt_user_to_delete_movie(self) -> None:
@@ -75,29 +99,12 @@ class MovieApp:
 
         if movie_title:
             self.storage._delete_movie(movie_title)
-            self._print_color(
+            helper.print_color(
                 f"Movie '{movie_title}' successfully deleted!", "green"
             )
-            self._enter_to_continue()
+            helper.enter_to_continue()
 
-    # 4 Update movie
-    def _prompt_user_to_update_movie(self) -> None:
-        """Prompts user for existing movie, then asks and sets new rating,
-        if movie exists.
-        """
-        movie_title = self._get_valid_movie_title_from_user(
-            case_sensitive=False, reverse=True
-        )
-
-        if movie_title:
-            rating = float(input("Enter a rating (1-10): "))
-            self.storage._update_movie(movie_title, rating)
-            self._print_color(
-                f"Movie '{movie_title}' successfully updated!", "green"
-            )
-            self._enter_to_continue()
-
-    # 5  Stats
+    # 4  Stats
     def _print_movie_stats(self) -> None:
         """Print statistics: average, median, best and worst movie."""
         (
@@ -111,19 +118,19 @@ class MovieApp:
 
         print(f"Average rating: {average:.1f}")
         print(f"Median rating: {median:.1f}")
-        self._print_color(
+        helper.print_color(
             f"Best movies with awesome {best_movie_rating} rating:"
             + "\n\t"
             + "\n\t".join(best_movies),
             "green",
         )
-        self._print_color(
+        helper.print_color(
             f"Worst movies with underwhelming {worst_movie_rating}:"
             + "\n\t"
             + "\n\t".join(worst_movies),
             "red",
         )
-        self._enter_to_continue()
+        helper.enter_to_continue()
 
     def _get_valid_movie_title_from_user(
         self, case_sensitive, reverse=False
@@ -145,14 +152,14 @@ class MovieApp:
         while True:
             movie_title = input("Enter a movie name: ")
             if len(movie_title) == 0:
-                self._print_color("You must type in a movie!", "red")
+                helper.print_color("You must type in a movie!", "red")
                 continue
 
             # when user wants to delete
             # or update a movie it must be an existing movie
             if reverse:
                 if not self._movie_exists(movie_title, case_sensitive):
-                    self._print_color(
+                    helper.print_color(
                         "Movie does not exist! Please type the exact movie title",
                         "red",
                     )
@@ -162,21 +169,21 @@ class MovieApp:
                     if user_wants_another_movie:
                         continue
                     else:
-                        return self._enter_to_continue()
+                        return helper.enter_to_continue()
                 else:
                     break
 
             # when user wants to add a movie it must be a new movie
             if not reverse:
                 if self._movie_exists(movie_title, case_sensitive):
-                    self._print_color("Movie already exist!", "red")
+                    helper.print_color("Movie already exist!", "red")
                     user_wants_another_movie = (
                         self._ask_user_for_another_movie()
                     )
                     if user_wants_another_movie:
                         continue
                     else:
-                        return self._enter_to_continue()
+                        return helper.enter_to_continue()
                 else:
                     break
         return movie_title
@@ -191,10 +198,10 @@ class MovieApp:
             try:
                 year = int(input("Enter first screening year: "))
             except ValueError:
-                self._print_color("Input must be an integer!", "red")
+                helper.print_color("Input must be an integer!", "red")
             else:
                 if year > datetime.datetime.now().year or year < 0:
-                    self._print_color(
+                    helper.print_color(
                         "Year must be a positive number and cannot be in the future!",
                         "red",
                     )
@@ -213,10 +220,10 @@ class MovieApp:
             try:
                 rating = float(input("Enter new movie rating (0-10): "))
             except ValueError:
-                self._print_color("Input must be a number!", "red")
+                helper.print_color("Input must be a number!", "red")
             else:
                 if rating < 0 or rating > 10:
-                    self._print_color("Input must be between 0-10!", "red")
+                    helper.print_color("Input must be between 0-10!", "red")
                 else:
                     break
         return rating
@@ -292,19 +299,19 @@ class MovieApp:
             worst_movies,
         )
 
-    # 6 Random movie
+    # 5 Random movie
     def _print_random_movie(self) -> None:
         """Process and print a random movie"""
         random_movie_dict = random.choice([movie for movie in self.movies])
         movie_title = random_movie_dict[TITLE]
         movie_rating = random_movie_dict[RATING]
-        self._print_color(
+        helper.print_color(
             f"Your movie for tonight: {movie_title}, it's rated {movie_rating}",
             "green",
         )
-        self._enter_to_continue()
+        helper.enter_to_continue()
 
-    # 7 Search movie
+    # 6 Search movie
     def _prompt_user_for_movie_search(self) -> None:
         """Prompt user for a film to search for, or part of a film, then search
         that film in the database and return an exact result or suggestions if not
@@ -313,12 +320,12 @@ class MovieApp:
         if search_term:
             self._fuzzy_search(self.movies, search_term)
         else:
-            self._print_color(
+            helper.print_color(
                 "Empty search, type at least one character!", "red"
             )
             return self._prompt_user_for_movie_search()
 
-        self._enter_to_continue()
+        helper.enter_to_continue()
 
     def _fuzzy_search(self, movies: list[dict], text: str) -> None:
         """Fuzzy search for movies.
@@ -352,31 +359,31 @@ class MovieApp:
             valid_substrings -- additional results if available
         """
         if suggestions:
-            self._print_color(
+            helper.print_color(
                 "We found this:" + "\n\t" + "\n\t".join(suggestions), "green"
             )
         if valid_substrings:
             print("")
-            self._print_color(
+            helper.print_color(
                 f"Maybe your searching this{' as well' if suggestions else ''}:"
                 + "\n\t"
                 + "\n\t".join(valid_substrings),
                 "blue",
             )
         if not suggestions and not valid_substrings:
-            self._print_color(f"Nothing with '{text}' found", "red")
+            helper.print_color(f"Nothing with '{text}' found", "red")
 
-    # 8 Movies sorted by rating
+    # 7 Movies sorted by rating
     def _print_sorted_movies_by_rating(self) -> None:
         """Print movies based on their ratings. best to worst"""
         return self._print_filtered_movies_by("Rating")
 
-    # 9 Movies sorted by year
+    # 8 Movies sorted by year
     def _print_sorted_movies_by_year(self) -> None:
         """Print movies based on their screening years. New to old"""
         return self._print_filtered_movies_by("Year")
 
-    # 10 Filter movies
+    # 9 Filter movies
     def _prompt_user_to_filter_movies(self) -> None:
         """Print sorted movies based on user choice. You can sort according:
         'Title', 'Year' or 'Rating'
@@ -391,24 +398,20 @@ class MovieApp:
         if len(filter_item.split()) == 2:
             filter_item, order = filter_item.split()
             if filter_item not in ("title", "year", "rating"):
-                self._print_color("Wrong filter name!", "red")
+                helper.print_color("Wrong filter name!", "red")
                 return self._prompt_user_to_filter_movies()
             if order != "asc":
-                self._print_color("Wrong order argument!", "red")
+                helper.print_color("Wrong order argument!", "red")
                 return self._prompt_user_to_filter_movies()
             return self._print_filtered_movies_by(filter_item, order)
         elif len(filter_item.split()) == 1:
             if filter_item not in ("title", "year", "rating"):
-                self._print_color("Wrong filter name!", "red")
+                helper.print_color("Wrong filter name!", "red")
                 return self._prompt_user_to_filter_movies()
             return self._print_filtered_movies_by(filter_item)
         else:
-            self._print_color("Wrong input!", "red")
+            helper.print_color("Wrong input!", "red")
             return self._prompt_user_to_filter_movies()
-
-        if order:
-            return self._print_filtered_movies_by(filter_item, order)
-        return self._print_filtered_movies_by(filter_item)
 
     def _print_filtered_movies_by(
         self, filter_item: str, order: str = "desc"
@@ -429,7 +432,7 @@ class MovieApp:
         print("")
         for movie in sorted_movies:
             print(f"{movie[TITLE]} ({movie[YEAR]}) {movie[RATING]}")
-        self._enter_to_continue()
+        helper.enter_to_continue()
 
     def _sort_movies_by(self, filter_item: str, order: str = "desc") -> list:
         """Sorts a copied movie list with chosen filter specs
@@ -451,7 +454,7 @@ class MovieApp:
 
         return list(sorted_movies)
 
-    # 11 Generate Website
+    # 10 Generate Website
     def _generate_website(self):
         template_file = "app/static/templates/index_template.html"
         website = "app/static/index.html"
@@ -475,8 +478,8 @@ class MovieApp:
         # save new generated index.html
         with open(website, "w") as file:
             file.write(website_html)
-        print("Website was generated successfully.")
-        self._enter_to_continue()
+        helper.print_color("Website was generated successfully.", "green")
+        helper.enter_to_continue()
 
     def _generate_movie_html(self):
         movies = self.storage.get_movie_data()
@@ -503,130 +506,12 @@ class MovieApp:
         with open(movie_html_template, "r") as file:
             return file.read()
 
-    def _print_color(self, text, color) -> None:
-        """Print colored text in terminal: red, green and blue!"""
-        color_translator = {
-            "red": Fore.RED,
-            "green": Fore.GREEN,
-            "blue": Fore.BLUE,
-        }
-        print(f"{color_translator[color]}{text}{Style.RESET_ALL}")
-
-    def _enter_to_continue(self) -> None:
-        """Print prompt to continue."""
-        print("")
-        input("Press enter to continue")
-        print("")
-
     def run(self):
-        TITLE = "********** My Movies Database **********"
-
-        MENU_ITEMS = [
-            {"i": 0, "command": "Exit", "func": self._print_bye},
-            {"i": 1, "command": "List movies", "func": self._print_movie_list},
-            {
-                "i": 2,
-                "command": "Add movie",
-                "func": self._prompt_user_to_add_movie,
-            },
-            {
-                "i": 3,
-                "command": "Delete movie",
-                "func": self._prompt_user_to_delete_movie,
-            },
-            {
-                "i": 4,
-                "command": "Update movie",
-                "func": self._prompt_user_to_update_movie,
-            },
-            {"i": 5, "command": "Stats", "func": self._print_movie_stats},
-            {
-                "i": 6,
-                "command": "Random movie",
-                "func": self._print_random_movie,
-            },
-            {
-                "i": 7,
-                "command": "Search movie",
-                "func": self._prompt_user_for_movie_search,
-            },
-            {
-                "i": 8,
-                "command": "Movies sorted by rating",
-                "func": self._print_sorted_movies_by_rating,
-            },
-            {
-                "i": 9,
-                "command": "Movies sorted by year",
-                "func": self._print_sorted_movies_by_year,
-            },
-            {
-                "i": 10,
-                "command": "Filter movies",
-                "func": self._prompt_user_to_filter_movies,
-            },
-            {
-                "i": 11,
-                "command": "Generate website",
-                "func": self._generate_website,
-            },
-        ]
-
         app_running = True
 
         print(TITLE, end="\n\n")
         while app_running:
             os.system("clear")
-            self._print_menu(MENU_ITEMS)
-            choice = self._get_menu_choice()
-            self._call_menu_item(choice, MENU_ITEMS)
-            if choice == 0:
-                app_running = False
-
-        return MENU_ITEMS
-
-    # MENU
-    def _print_menu(self, menu_items: list[dict]) -> None:
-        """Print Menu with number and feature.
-
-        Args:
-            menu_items (list[dict]): {"menu_item": function}
-        """
-        print("Menu:")
-        print("")
-
-        for menu_item in menu_items:
-            print(f"{menu_item['i']}. {menu_item['command']}")
-        print("")
-
-    def _get_menu_choice(self) -> int:
-        """Prompt user for menu choice
-
-        Returns:
-            int: menu number
-        """
-        while True:
-            try:
-                while True:
-                    choice = int(input("Enter choice (0-11): "))
-                    if choice > 11 or choice < 0:
-                        self._print_color("Number out of range!", "red")
-                    else:
-                        break
-            except ValueError:
-                self._print_color("Only numbers 0-11 are allowed!", "red")
-            else:
-                return choice
-
-    def _call_menu_item(self, menu_num: int, menu_items: list[dict]):
-        """Execute chosen menu function
-
-        Args:
-            menu_num (int): menu number (0-11)
-            menu_items (list[dict]): dictionary with features and functions
-
-        Returns:
-            function to call feature
-        """
-
-        return menu_items[menu_num]["func"]()
+            self.menu_actions.print_menu()
+            choice = self.menu_actions.get_menu_choice()
+            self.menu_actions.call_menu_item(choice)

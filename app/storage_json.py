@@ -1,6 +1,6 @@
 import json
-from istorage import IStorage
-from istorage import TITLE, YEAR, RATING
+
+from istorage import RATING, TITLE, YEAR, IStorage
 
 
 class StorageJson(IStorage):
@@ -38,14 +38,6 @@ class StorageJson(IStorage):
         for index, movie in enumerate(movies):
             if movie[TITLE].lower() == title.lower():
                 movies.remove(movies[index])
-
-        self._save_movies(movies)
-
-    def _update_movie(self, title, rating) -> None:
-        movies = self.get_movie_data()
-        for index, movie in enumerate(movies):
-            if movie[TITLE].lower() == title.lower():
-                movies[index]["Rating"] = rating
 
         self._save_movies(movies)
 

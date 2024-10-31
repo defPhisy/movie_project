@@ -1,6 +1,6 @@
 import csv
-from istorage import IStorage
-from istorage import TITLE, YEAR, RATING
+
+from istorage import RATING, TITLE, YEAR, IStorage
 
 
 class StorageCsv(IStorage):
@@ -9,31 +9,23 @@ class StorageCsv(IStorage):
 
     def get_movie_data(self) -> list[dict]:
         with open(self.file_path, "r") as file:
-            dict_reader = csv.DictReader(file)
-            data = list(dict_reader)
-            movies = []
-            for row in data:
-                title = row["Title"]
-                rating = float(row["Rating"])
-                year = int(row["Year"])
-                poster = row["Poster"]
-                movies.append({
-                    "Title": title,
-                    "Rating": rating,
-                    "Year": year,
-                    "Poster": poster,
-                })
-        return movies
+            return [
+                {
+                    "Title": row["Title"],
+                    "Rating": float(row["Rating"]),
+                    "Year": int(row["Year"]),
+                    "Poster": row["Poster"],
+                }
+                for row in csv.DictReader(file)
+            ]
 
     def _list_movies(self) -> dict[str, dict]:
         movies = self.get_movie_data()
-        movie_dict = {}
-        for movie in movies:
-            movie_dict[movie[TITLE]] = {
-                "rating": movie[RATING],
-                "year": movie[YEAR],
-                "poster": movie["Poster"],
-            }
+        return {
+            movie[TITLE]: {"rating": movie[RATING], "year": movie[YEAR]}
+            for movie in movies
+        }
+
         print(movie_dict)
         return movie_dict
 
@@ -48,21 +40,13 @@ class StorageCsv(IStorage):
 
         self._save_movies(movies)
 
-    def _delete_movie(self, title):
+    def _delete_movie(self, title: str) -> None:
         movies = self.get_movie_data()
-        for index, movie in enumerate(movies):
-            if movie[TITLE].lower() == title.lower():
-                movies.remove(movies[index])
+        new_movies = [
+            movie for movie in movies if movie[TITLE].lower() != title.lower()
+        ]
 
-        self._save_movies(movies)
-
-    def _update_movie(self, title, rating) -> None:
-        movies = self.get_movie_data()
-        for index, movie in enumerate(movies):
-            if movie[TITLE].lower() == title.lower():
-                movies[index]["Rating"] = rating
-
-        self._save_movies(movies)
+        self._save_movies(new_movies)
 
     def _save_movies(self, movies) -> None:
         """Save movies in json file.

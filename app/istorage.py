@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-
 # Movie dictionary keys
 TITLE = "Title"
 YEAR = "Year"
@@ -40,15 +39,6 @@ class IStorage(ABC):
         """
         Deletes a movie from the movies database.
         Loads the information from the JSON file, deletes the movie,
-        and saves it. The function doesn't need to validate the input.
-        """
-        pass
-
-    @abstractmethod
-    def _update_movie(self, title, rating) -> None:
-        """
-        Updates a movie from the movies database.
-        Loads the information from the JSON file, updates the movie,
         and saves it. The function doesn't need to validate the input.
         """
         pass
