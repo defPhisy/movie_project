@@ -33,11 +33,11 @@ The Lord of the Rings: The Return of the King (2003): 9.0
 Press enter to continue
 ```
 
-<p style="margin: -1.8rem 0 2rem 2rem; font-size: 0.65rem">CLI-Interface</p>
+<p style="margin: -1.8rem 0 2rem 2rem; font-size: 0.5rem">CLI-Interface</p>
 
 ![screenshot](./images/my_movie_app.jpeg)
 
-<p style="text-align:center;margin-top: -1.5rem; font-size: 0.65rem">Generated Website</p>
+<p style="text-align:center;margin-top: -1.5rem; font-size: 0.5rem">Generated Website</p>
 
 ## Features
 
