@@ -9,17 +9,41 @@ Usage:
     Run this script to start the MovieApp with current storage settings.
 """
 
+import os
+from arg_handling import args
 from movie_app import MovieApp
 from storage.storage_csv import StorageCsv
-
-# from storage_json import StorageJson
+from storage.storage_json import StorageJson
 
 
 def main() -> None:
-    # for json storage use storage = StorageCsv(filename) and uncomment import
-    storage = StorageCsv("app/data/movie_db.csv")
+    STORAGE_PATH = "app/data"
+
+    # default db name
+    db_name = "movie_db"
+    # default file extension
+    ext = ".json"
+
+    if args.name:
+        db_name = args.name
+
+    # default storage is json
+    db_path = get_file_path(STORAGE_PATH, db_name, ext)
+
+    if args.csv:
+        ext = ".csv"
+        db_path = get_file_path(STORAGE_PATH, db_name, ext)
+        storage = StorageCsv(db_path)
+    else:
+        storage = StorageJson(db_path)
+
     movie_app = MovieApp(storage)
     movie_app.run()
+
+
+def get_file_path(storage_path, name, extension):
+    db_file = name + extension
+    return os.path.join(storage_path, db_file)
 
 
 if __name__ == "__main__":

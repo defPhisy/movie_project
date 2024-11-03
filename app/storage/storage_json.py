@@ -10,48 +10,65 @@ Methods:
 """
 
 import json
+import os
 
-from app.storage.istorage import RATING, TITLE, YEAR, POSTER, IStorage
+from storage.istorage import RATING, TITLE, YEAR, POSTER, IStorage
 
 
 class StorageJson(IStorage):
     def __init__(self, file_path) -> None:
         self.file_path = file_path
 
+        if not os.path.exists(file_path):
+            self.create_new_file()
+
+    def create_new_file(self):
+        with open(self.file_path, "w") as file:
+            file.write("[]")
+
     def get_movie_data(self) -> list[dict]:
         with open(self.file_path, "r") as file:
-            data = json.loads(file.read())
-        return data
+            data = file.read()
+            return [
+                {
+                    "Title": row["Title"],
+                    "Rating": row["Rating"],
+                    "Year": row["Year"],
+                    "Poster": row["Poster"],
+                }
+                for row in json.loads(data)
+            ]
 
     def _list_movies(self) -> dict[str, dict]:
         movies = self.get_movie_data()
         movie_dict = {}
-        for movie in movies:
-            movie_dict[movie[TITLE]] = {
-                "rating": movie[RATING],
-                "year": movie[YEAR],
-                "poster": movie[POSTER],
-            }
+        if movies:
+            for movie in movies:
+                movie_dict[movie[TITLE]] = {
+                    "rating": movie[RATING],
+                    "year": movie[YEAR],
+                    "poster": movie[POSTER],
+                }
         return movie_dict
 
-    def _add_movie(self, title, year, rating, poster="placeholder") -> None:
+    def _add_movie(self, title, year, rating, poster) -> None:
         movies = self.get_movie_data()
         movies.append({
             "Title": title,
-            "Rating": rating,
-            "Year": year,
-            "poster": poster,
+            "Rating": float(rating),
+            "Year": int(year),
+            "Poster": poster,
         })
 
         self._save_movies(movies)
 
     def _delete_movie(self, title):
         movies = self.get_movie_data()
-        for index, movie in enumerate(movies):
-            if movie[TITLE].lower() == title.lower():
-                movies.remove(movies[index])
+        new_movies = [
+            movie for movie in movies if movie[TITLE].lower() != title.lower()
+        ]
 
-        self._save_movies(movies)
+        self._save_movies(new_movies)
 
     def _save_movies(self, movies) -> None:
         """Save movies in json file.
