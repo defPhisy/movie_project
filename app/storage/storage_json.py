@@ -35,6 +35,7 @@ class StorageJson(IStorage):
                     "Rating": row["Rating"],
                     "Year": row["Year"],
                     "Poster": row["Poster"],
+                    "ID": row["ID"],
                 }
                 for row in json.loads(data)
             ]
@@ -51,13 +52,14 @@ class StorageJson(IStorage):
                 }
         return movie_dict
 
-    def _add_movie(self, title, year, rating, poster) -> None:
+    def _add_movie(self, title, year, rating, poster, imdb_id) -> None:
         movies = self.get_movie_data()
         movies.append({
             "Title": title,
             "Rating": float(rating),
             "Year": int(year),
             "Poster": poster,
+            "ID": imdb_id,
         })
 
         self._save_movies(movies)
