@@ -38,6 +38,9 @@ class MovieApp:
             "Generate website": self._generate_website,
         })
 
+    def _update_movies(self) -> None:
+        self.movies = self.storage.get_movie_data()
+
     # 0 Exit
     def _print_bye(self) -> None:
         """Print 'Good Bye' before program exits"""
@@ -49,7 +52,7 @@ class MovieApp:
     # 1 List movies
     def _print_movie_list(self) -> None:
         """Print all movies in database."""
-        self.movies = self.storage.get_movie_data()
+        self._update_movies()
         print("")
         print(len(self.movies), "movies in total")
         for movie in self.movies:
@@ -75,7 +78,10 @@ class MovieApp:
                 year = movie["Year"]
                 rating = movie["imdbRating"]
                 poster_url = movie["Poster"]
-                self.storage._add_movie(title, year, rating, poster_url)
+                imdb_id = movie["imdbID"]
+                self.storage._add_movie(
+                    title, year, rating, poster_url, imdb_id
+                )
                 helper.print_color(
                     f"Movie '{title}' successfully added!", "green"
                 )
@@ -105,30 +111,34 @@ class MovieApp:
     # 4  Stats
     def _print_movie_stats(self) -> None:
         """Print statistics: average, median, best and worst movie."""
-        (
-            average,
-            median,
-            best_movie_rating,
-            worst_movie_rating,
-            best_movies,
-            worst_movies,
-        ) = self._get_movie_stats()
-
-        print(f"Average rating: {average:.1f}")
-        print(f"Median rating: {median:.1f}")
-        helper.print_color(
-            f"Best movies with awesome {best_movie_rating} rating:"
-            + "\n\t"
-            + "\n\t".join(best_movies),
-            "green",
-        )
-        helper.print_color(
-            f"Worst movies with underwhelming {worst_movie_rating}:"
-            + "\n\t"
-            + "\n\t".join(worst_movies),
-            "red",
-        )
-        helper.enter_to_continue()
+        try:
+            (
+                average,
+                median,
+                best_movie_rating,
+                worst_movie_rating,
+                best_movies,
+                worst_movies,
+            ) = self._get_movie_stats()
+        except ValueError as error:
+            helper.print_color(f"{error}", "red")
+            helper.enter_to_continue()
+        else:
+            print(f"Average rating: {average:.1f}")
+            print(f"Median rating: {median:.1f}")
+            helper.print_color(
+                f"Best movies with awesome {best_movie_rating} rating:"
+                + "\n\t"
+                + "\n\t".join(best_movies),
+                "green",
+            )
+            helper.print_color(
+                f"Worst movies with underwhelming {worst_movie_rating}:"
+                + "\n\t"
+                + "\n\t".join(worst_movies),
+                "red",
+            )
+            helper.enter_to_continue()
 
     def _get_valid_movie_title_from_user(
         self, case_sensitive, reverse=False
@@ -237,7 +247,7 @@ class MovieApp:
         Returns:
             bool: True or False
         """
-        self.movies = self.storage.get_movie_data()
+        self._update_movies()
         if not case_sensitive:
             movies_lower = map(lambda x: x[TITLE].lower(), self.movies)
             return movie_title.lower() in movies_lower
@@ -268,6 +278,13 @@ class MovieApp:
             (average, median, best_movie_rating, worst_movie_rating,
             best_movies, worst_movies)
         """
+        self._update_movies()
+
+        if len(self.movies) < 2:
+            raise ValueError(
+                "Not enough movies in database!"
+                + "To perform stats you need at least 2 movies."
+            )
         ratings = [movie[RATING] for movie in self.movies]
 
         sorted_movie_ratings = sorted(ratings)
@@ -300,20 +317,26 @@ class MovieApp:
     # 5 Random movie
     def _print_random_movie(self) -> None:
         """Process and print a random movie"""
-        random_movie_dict = random.choice([movie for movie in self.movies])
-        movie_title = random_movie_dict[TITLE]
-        movie_rating = random_movie_dict[RATING]
-        helper.print_color(
-            f"Your movie for tonight: {movie_title}, it's rated {movie_rating}",
-            "green",
-        )
+        self._update_movies()
+        try:
+            random_movie_dict = random.choice([movie for movie in self.movies])
+        except IndexError:
+            helper.print_color("No movies in database to choose from!", "red")
+        else:
+            movie_title = random_movie_dict[TITLE]
+            movie_rating = random_movie_dict[RATING]
+            helper.print_color(
+                f"Your movie for tonight: {movie_title}, it's rated {movie_rating}",
+                "green",
+            )
         helper.enter_to_continue()
 
     # 6 Search movie
     def _prompt_user_for_movie_search(self) -> None:
         """Prompt user for a film to search for, or part of a film, then search
-        that film in the database and return an exact result or suggestions if not
-        found exact movie"""
+        that film in the database and return an exact result or suggestions
+        if not found exact movie"""
+        self._update_movies()
         search_term = input("Enter full or part of  a movie title: ")
         if search_term:
             self._fuzzy_search(self.movies, search_term)
@@ -421,7 +444,8 @@ class MovieApp:
             filter_item -- can be 'title', 'year' or 'rating'
 
         Keyword Arguments:
-            order -- optionally you can add asc to the filter item like 'title asc'
+            order -- optionally you can add asc to the filter item
+            like 'title asc'
             (default: {"desc"})
         """
         sorted_movies = self._sort_movies_by(
@@ -445,7 +469,7 @@ class MovieApp:
         Returns:
             _description_
         """
-
+        self._update_movies()
         sorted_movies = sorted(self.movies, key=lambda item: item[filter_item])
         if order == "desc":
             sorted_movies = reversed(sorted_movies)
@@ -480,15 +504,17 @@ class MovieApp:
         helper.enter_to_continue()
 
     def _generate_movie_html(self):
-        movies = self.storage.get_movie_data()
+        self._update_movies()
         html_template = self.get_movie_html_template()
         final_html = ""
 
-        for movie in movies:
+        for movie in self.movies:
             translation_table = {
                 "__POSTER__": movie["Poster"],
                 "__TITLE__": movie["Title"],
                 "__YEAR__": str(movie["Year"]),
+                "__STARS__": round(int(movie["Rating"] // 2)) * "⭐",
+                "__LINK__": movie["ID"],
             }
 
             movie_html = re.sub(
@@ -503,6 +529,9 @@ class MovieApp:
         movie_html_template = "app/static/templates/movie_template.html"
         with open(movie_html_template, "r") as file:
             return file.read()
+
+    def _get_stars(self):
+        pass
 
     def run(self):
         app_running = True

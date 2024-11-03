@@ -25,7 +25,6 @@ body {
 
 .list-movies-title {
   padding: 0.75rem 0;
-  /* background: var(--header-clr); */
   color: #e2f1e7;
   font-family: Arial, "Helvetica Neue", sans-serif;
   font-weight: bolder;
@@ -45,13 +44,14 @@ body {
 }
 
 .movie-grid li {
-  /* padding: 10px 15px; */
   text-align: center;
   margin-top: 1rem;
+  position: relative;
 }
 
 .movie {
   width: var(--movie-width);
+  position: relative;
 }
 
 .movie-title,
@@ -71,4 +71,25 @@ body {
 .movie-poster {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   width: 100%;
+  position: relative; /* Ensure that absolute positioning of children works */
+
+  z-index: -1;
+}
+
+a {
+  background-color: transparent;
+  display: block;
+}
+
+a:hover {
+  box-shadow: inset 0 0 20px rgb(15, 19, 26);
+  transition: box-shadow ease-in 0.5s;
+}
+.stars {
+  position: absolute; /* Allow for precise placement */
+  font-size: 1.5rem;
+  top: 75%; /* Position as needed */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%); /* Center stars */
+  cursor: default;
 }

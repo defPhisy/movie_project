@@ -61,4 +61,13 @@ Press enter to continue
 
 4. run app
 
-- `python app/main.py`
+```shell
+# start app with json storage
+python app/main.py
+
+# start app with csv storage named "Database Name"
+python app/main.py --csv --name "Database Name"
+
+# for help
+python app/main.py --help
+```

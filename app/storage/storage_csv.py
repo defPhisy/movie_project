@@ -10,6 +10,7 @@ Methods:
 """
 
 import csv
+import os
 
 from storage.istorage import RATING, TITLE, YEAR, POSTER, IStorage
 
@@ -17,6 +18,13 @@ from storage.istorage import RATING, TITLE, YEAR, POSTER, IStorage
 class StorageCsv(IStorage):
     def __init__(self, file_path) -> None:
         self.file_path = file_path
+
+        if not os.path.exists(file_path):
+            self.create_new_file()
+
+    def create_new_file(self):
+        with open(self.file_path, "w") as file:
+            file.write("Title,Rating,Year,Poster")
 
     def get_movie_data(self) -> list[dict]:
         with open(self.file_path, "r") as file:
@@ -26,29 +34,31 @@ class StorageCsv(IStorage):
                     "Rating": float(row["Rating"]),
                     "Year": int(row["Year"]),
                     "Poster": row["Poster"],
+                    "ID": row["ID"],
                 }
                 for row in csv.DictReader(file)
             ]
 
     def _list_movies(self) -> dict[str, dict]:
         movies = self.get_movie_data()
-        print(movies)
-        return {
-            movie[TITLE]: {
-                "rating": movie[RATING],
-                "year": movie[YEAR],
-                "poster": movie[POSTER],
-            }
-            for movie in movies
-        }
+        movie_dict = {}
+        if movies:
+            for movie in movies:
+                movie_dict[movie[TITLE]] = {
+                    "rating": movie[RATING],
+                    "year": movie[YEAR],
+                    "poster": movie[POSTER],
+                }
+        return movie_dict
 
-    def _add_movie(self, title, year, rating, poster="placeholder") -> None:
+    def _add_movie(self, title, year, rating, poster, imdb_id) -> None:
         movies = self.get_movie_data()
         movies.append({
             "Title": title,
-            "Rating": rating,
-            "Year": year,
+            "Rating": float(rating),
+            "Year": int(year),
             "Poster": poster,
+            "ID": imdb_id,
         })
 
         self._save_movies(movies)
@@ -68,9 +78,10 @@ class StorageCsv(IStorage):
             movies -- dictionary of all movies
         """
 
-        field_names = movies[0].keys()
+        field_names = ["Title", "Rating", "Year", "Poster"]
 
         with open(self.file_path, "w") as file:
             writer = csv.DictWriter(file, fieldnames=field_names)
             writer.writeheader()
-            writer.writerows(movies)
+            if movies:
+                writer.writerows(movies)
