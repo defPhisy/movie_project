@@ -78,7 +78,10 @@ class MovieApp:
                 year = movie["Year"]
                 rating = movie["imdbRating"]
                 poster_url = movie["Poster"]
-                self.storage._add_movie(title, year, rating, poster_url)
+                imdb_id = movie["imdbID"]
+                self.storage._add_movie(
+                    title, year, rating, poster_url, imdb_id
+                )
                 helper.print_color(
                     f"Movie '{title}' successfully added!", "green"
                 )
@@ -510,6 +513,8 @@ class MovieApp:
                 "__POSTER__": movie["Poster"],
                 "__TITLE__": movie["Title"],
                 "__YEAR__": str(movie["Year"]),
+                "__STARS__": round(int(movie["Rating"] // 2)) * "⭐",
+                "__LINK__": movie["ID"],
             }
 
             movie_html = re.sub(
@@ -524,6 +529,9 @@ class MovieApp:
         movie_html_template = "app/static/templates/movie_template.html"
         with open(movie_html_template, "r") as file:
             return file.read()
+
+    def _get_stars(self):
+        pass
 
     def run(self):
         app_running = True
