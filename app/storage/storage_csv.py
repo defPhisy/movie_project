@@ -24,7 +24,7 @@ class StorageCsv(IStorage):
 
     def create_new_file(self):
         with open(self.file_path, "w") as file:
-            file.write("Title,Rating,Year,Poster")
+            file.write("Title,Rating,Year,Poster,ID")
 
     def get_movie_data(self) -> list[dict]:
         with open(self.file_path, "r") as file:
@@ -78,7 +78,7 @@ class StorageCsv(IStorage):
             movies -- dictionary of all movies
         """
 
-        field_names = ["Title", "Rating", "Year", "Poster"]
+        field_names = ["Title", "Rating", "Year", "Poster", "ID"]
 
         with open(self.file_path, "w") as file:
             writer = csv.DictWriter(file, fieldnames=field_names)
