@@ -477,9 +477,12 @@ class MovieApp:
         return list(sorted_movies)
 
     # 10 Generate Website
-    def _generate_website(self):
-        template_file = "app/static/templates/index_template.html"
-        website = "app/static/index.html"
+    def _generate_website(self) -> None:
+        """Generates a website with a custom heading and movie grid.
+        Creates `static/index.html` using a template and user-provided title.
+        """
+        template_file = "static/templates/index_template.html"
+        website = "static/index.html"
         website_title = input("Type a website heading: ")
         with open(template_file, "r") as file:
             data = file.read()
@@ -503,7 +506,13 @@ class MovieApp:
         helper.print_color("Website was generated successfully.", "green")
         helper.enter_to_continue()
 
-    def _generate_movie_html(self):
+    def _generate_movie_html(self) -> str:
+        """
+        Generates HTML for all movies.
+
+        Returns:
+            str: Combined HTML of all movies.
+        """
         self._update_movies()
         html_template = self.get_movie_html_template()
         final_html = ""
@@ -525,15 +534,21 @@ class MovieApp:
             final_html += movie_html
         return final_html
 
-    def get_movie_html_template(self):
-        movie_html_template = "app/static/templates/movie_template.html"
+    def get_movie_html_template(self) -> str:
+        """
+        Loads the HTML template for a single movie.
+
+        Returns:
+            str: The HTML template content.
+        """
+        movie_html_template = "static/templates/movie_template.html"
         with open(movie_html_template, "r") as file:
             return file.read()
 
-    def _get_stars(self):
-        pass
-
-    def run(self):
+    def run(self) -> None:
+        """
+        Main loop for displaying the menu and handling user choices.
+        """
         app_running = True
 
         print(TITLE, end="\n\n")

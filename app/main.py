@@ -17,7 +17,7 @@ from storage.storage_json import StorageJson
 
 
 def main() -> None:
-    STORAGE_PATH = "app/data"
+    STORAGE_PATH = "data"
 
     # default db name
     db_name = "movie_db"
